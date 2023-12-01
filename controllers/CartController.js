@@ -9,7 +9,7 @@ cartController.get(
   authorization(["admin", "buyer", "seller"]),
   async (req, res) => {
     try {
-      const data = await CartModel.find({ _id: req.userId });
+      const data = await CartModel.find({ userId: req.userId });
       res.send(data);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
