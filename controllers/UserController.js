@@ -54,7 +54,7 @@ userController.post(
       return res.json({ token, name: req.user.name });
     }
 
-    return res.json(req.user);
+    return res.status(400).json(req.user);
   }
 );
 
