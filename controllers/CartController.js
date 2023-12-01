@@ -22,7 +22,7 @@ cartController.patch(
   authorization(["admin", "buyer", "seller"]),
   async (req, res) => {
     try {
-      //   console.log(req.body);
+      //   console.log(req.userId);
       const data = await CartModel.findOneAndUpdate(
         { userId: req.userId },
         req.body
