@@ -1,5 +1,5 @@
 const express = require("express");
-const { userController } = require("./controllers/userController");
+const { userController } = require("./controllers/UserController");
 const { connection } = require("./configs/db");
 const cors = require("cors");
 const { authorization } = require("./middleware/authorization");
