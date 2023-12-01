@@ -2,6 +2,8 @@ const express = require("express");
 const { userController } = require("./controllers/userController");
 const { connection } = require("./configs/db");
 const cors = require("cors");
+const { authorization } = require("./middleware/authorization");
+const { productsController } = require("./controllers/ProductsController");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -14,6 +16,15 @@ app.get("/", (req, res) => {
 });
 
 app.use("/user", userController);
+app.use("/products", productsController);
+
+app.get(
+  "/protected",
+  authorization(["buyer", "admin", "seller"]),
+  (req, res) => {
+    res.json({ message: "good" });
+  }
+);
 
 app.listen(PORT, async () => {
   try {

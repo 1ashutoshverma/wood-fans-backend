@@ -19,9 +19,9 @@ userController.post("/signup", async (req, res) => {
     const userExist = await UserModel.findOne({ email });
 
     if (userExist) {
-      return res
-        .status(400)
-        .json({ message: "User already exists. Please login!" });
+      return res.status(400).json({
+        message: "User already exists. Please login or sign in with google!",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 5);
@@ -31,7 +31,10 @@ userController.post("/signup", async (req, res) => {
       name,
     });
 
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET
+    );
 
     res.json({ token, name: newUser.name });
   } catch (error) {
@@ -43,8 +46,15 @@ userController.post(
   "/login",
   passport.authenticate("local", { session: false }),
   (req, res) => {
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET);
-    res.json({ token, name: req.user.name });
+    if (req.user._id) {
+      const token = jwt.sign(
+        { userId: req.user._id, role: req.user.role },
+        process.env.JWT_SECRET
+      );
+      return res.json({ token, name: req.user.name });
+    }
+
+    return res.json(req.user);
   }
 );
 
@@ -60,7 +70,10 @@ userController.get(
     session: false,
   }),
   (req, res) => {
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: req.user._id, role: req.user.role },
+      process.env.JWT_SECRET
+    );
     res.json({ token, name: req.user.name });
   }
 );
@@ -73,16 +86,17 @@ passport.use(
         const user = await UserModel.findOne({ email });
 
         if (!user) {
-          return done(null, false, { message: "User not found" });
+          return done(null, {
+            message: "User not found, please sign up first!",
+          });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-          return done(null, false, { message: "Incorrect password" });
-        }
-
-        return done(null, user);
+        bcrypt.compare(password, user.password, function (err, result) {
+          if (!result) {
+            return done(null, { message: "Incorrect password" });
+          }
+          return done(null, user);
+        });
       } catch (error) {
         return done(error);
       }
