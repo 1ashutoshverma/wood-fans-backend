@@ -4,6 +4,7 @@ const { connection } = require("./configs/db");
 const cors = require("cors");
 const { authorization } = require("./middleware/authorization");
 const { productsController } = require("./controllers/ProductsController");
+const { cartController } = require("./controllers/CartController");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 app.use("/user", userController);
 app.use("/products", productsController);
+app.use("/cart", cartController);
 
 app.get(
   "/protected",

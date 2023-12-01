@@ -5,6 +5,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { UserModel } = require("../models/UserModel");
+const { CartModel } = require("../models/CartModel");
 require("dotenv").config();
 
 const userController = express.Router();
@@ -31,6 +32,10 @@ userController.post("/signup", async (req, res) => {
       name,
     });
 
+    const cartCreate = await CartModel.create({
+      userId: newUser._id,
+      cart: [],
+    });
     const token = jwt.sign(
       { userId: newUser._id, role: newUser.role },
       process.env.JWT_SECRET
