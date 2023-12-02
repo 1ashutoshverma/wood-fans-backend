@@ -36,6 +36,7 @@ userController.post("/signup", async (req, res) => {
       userId: newUser._id,
       cart: [],
     });
+    
     const token = jwt.sign(
       { userId: newUser._id, role: newUser.role },
       process.env.JWT_SECRET

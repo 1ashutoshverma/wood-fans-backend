@@ -5,10 +5,12 @@ const cors = require("cors");
 const { authorization } = require("./middleware/authorization");
 const { productsController } = require("./controllers/ProductsController");
 const { cartController } = require("./controllers/CartController");
+const { AdminController } = require("./controllers/AdminController");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.use(express.static("admin"));
 app.use(cors());
 app.use(express.json());
 
@@ -19,6 +21,7 @@ app.get("/", (req, res) => {
 app.use("/user", userController);
 app.use("/products", productsController);
 app.use("/cart", cartController);
+app.use("/admin", AdminController);
 
 app.get(
   "/protected",
