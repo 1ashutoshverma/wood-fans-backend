@@ -1,3 +1,5 @@
+// const { Axios } = require("axios");
+// import axios from "axios";
 let form = document.querySelector("form");
 
 form.addEventListener("submit", (e) => {
@@ -13,8 +15,9 @@ form.addEventListener("submit", (e) => {
 
 async function postData() {
   try {
-    const res = await axios.get("/products");
-    console.log(res);
+    const res = await fetch("/products");
+    const data = await res.json();
+    console.log(data);
   } catch (error) {
     console.log(error);
   }
