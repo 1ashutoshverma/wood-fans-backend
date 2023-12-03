@@ -1,92 +1,93 @@
 const express = require("express");
 const path = require("path");
+const { UserModel } = require("../models/UserModel");
+const { authorization } = require("../middleware/authorization");
+require("dotenv").config();
+const bcrypt = require("bcrypt");
+const { CartModel } = require("../models/CartModel");
 
 const AdminController = express.Router();
 
-AdminController.get("/", (req, res) => {
-  const htmlPath = `
-  <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Page</title>
-    <style>
-      #container {
-        max-width: 1250px;
-        margin: auto;
-        border: 1px solid red;
-      }
-
-      form {
-        display: flex;
-        width: 40%;
-        margin: auto;
-        /* border: 1px solid red; */
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-      }
-
-      input,
-      select {
-        width: 90%;
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid rgb(177, 174, 174);
-      }
-      input[type="submit"],
-      select {
-        width: 95%;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="container">
-      <form>
-        <input type="text" placeholder="Name" id="name" />
-        <input type="email" placeholder="email" id="email" />
-        <select title="Select" id="role">
-          <option value="buyer">Buyer</option>
-          <option value="seller">Seller</option>
-          <option value="admin">Admin</option>
-        </select>
-        <input type="password" placeholder="Password" id="password" />
-        <input type="submit" />
-      </form>
-    </div>
-  </body>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script type="module">
-    let form = document.querySelector("form");
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      let obj = {
-        name: e.target.name.value,
-        email: e.target.email.value,
-        role: e.target.role.value,
-        password: e.target.password.value,
-      };
-      postData();
-    });
-
-    async function postData() {
-      try {
-        const res = await fetch("/products");
-        const data = await res.json();
-        console.log(data, "hello");
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  </script>
-</html>
-
-  `;
-  res.send(htmlPath);
+AdminController.get("/user", authorization(["admin"]), async (req, res) => {
+  const data = await UserModel.find();
+  res.json({ data: data });
 });
+
+AdminController.post(
+  "/user/create",
+  authorization(["admin"]),
+  async (req, res) => {
+    const { email, name, password, role } = req.body;
+
+    if (!(email && password && name && role)) {
+      return res.status(400).json({ message: "Please fill all the details" });
+    }
+    try {
+      const userExist = await UserModel.findOne({ email });
+
+      if (userExist) {
+        return res.status(400).json({
+          message: "User already exists. Please edit userdetails",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 5);
+      const newUser = await UserModel.create({
+        email,
+        password: hashedPassword,
+        name,
+        role,
+      });
+
+      const cartCreate = await CartModel.create({
+        userId: newUser._id,
+        cart: [],
+      });
+
+      res.json({
+        message: "User created successfully",
+        email: newUser.email,
+        role: newUser.role,
+        name: newUser.name,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+    res.send("admin create user");
+  }
+);
+
+AdminController.patch(
+  "/user/update/:id",
+  authorization(["admin"]),
+  async (req, res) => {
+    const id = req.params.id;
+
+    const userData = await UserModel.findOneAndUpdate({ _id: id }, req.body);
+
+    if (userData) {
+      res.json({ message: "User data is updated successfully" });
+    } else {
+      res.status(400).json({ message: "something went wrong" });
+    }
+  }
+);
+
+AdminController.delete(
+  "/user/delete/:id",
+  authorization(["admin"]),
+  async (req, res) => {
+    const id = req.params.id;
+
+    const userData = await UserModel.findOneAndDelete({ _id: id });
+    const cartData = await CartModel.findOneAndDelete({ userId: id });
+
+    if (userData && cartData) {
+      res.json({ message: "User data is deleted successfully" });
+    } else {
+      res.status(400).json({ message: "something went wrong" });
+    }
+  }
+);
 
 module.exports = { AdminController };

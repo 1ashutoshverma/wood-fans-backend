@@ -36,13 +36,13 @@ userController.post("/signup", async (req, res) => {
       userId: newUser._id,
       cart: [],
     });
-    
+
     const token = jwt.sign(
       { userId: newUser._id, role: newUser.role },
       process.env.JWT_SECRET
     );
 
-    res.json({ token, name: newUser.name });
+    res.json({ token, name: newUser.name, role: newUser.role });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -57,7 +57,7 @@ userController.post(
         { userId: req.user._id, role: req.user.role },
         process.env.JWT_SECRET
       );
-      return res.json({ token, name: req.user.name });
+      return res.json({ token, name: req.user.name, role: req.user.role });
     }
 
     return res.status(400).json(req.user);
@@ -80,7 +80,7 @@ userController.get(
       { userId: req.user._id, role: req.user.role },
       process.env.JWT_SECRET
     );
-    res.json({ token, name: req.user.name });
+    res.json({ token, name: req.user.name, role: req.user.role });
   }
 );
 
