@@ -10,3 +10,8 @@ endpoints
 /products/:id
 
 admin part
+
+admin/user
+admin/update
+admit/user/create
+admin/user/delete
