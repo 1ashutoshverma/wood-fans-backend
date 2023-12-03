@@ -6,6 +6,7 @@ const { authorization } = require("./middleware/authorization");
 const { productsController } = require("./controllers/ProductsController");
 const { cartController } = require("./controllers/CartController");
 const { AdminController } = require("./controllers/AdminController");
+const { SellerController } = require("./controllers/SellerController");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -22,6 +23,7 @@ app.use("/user", userController);
 app.use("/products", productsController);
 app.use("/cart", cartController);
 app.use("/admin", AdminController);
+app.use("/seller", SellerController);
 
 app.get(
   "/protected",
