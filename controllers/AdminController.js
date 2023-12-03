@@ -22,6 +22,7 @@ AdminController.post(
     if (!(email && password && name && role)) {
       return res.status(400).json({ message: "Please fill all the details" });
     }
+
     try {
       const userExist = await UserModel.findOne({ email });
 
@@ -61,8 +62,8 @@ AdminController.patch(
   authorization(["admin"]),
   async (req, res) => {
     const id = req.params.id;
-
-    const userData = await UserModel.findOneAndUpdate({ _id: id }, req.body);
+    const { password, ...obj } = req.body;
+    const userData = await UserModel.findOneAndUpdate({ _id: id }, obj);
 
     if (userData) {
       res.json({ message: "User data is updated successfully" });
