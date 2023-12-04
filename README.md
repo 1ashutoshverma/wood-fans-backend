@@ -1,5 +1,9 @@
 ## API Reference
 
+### Base Api URL
+
+https://wood-fans-backend.vercel.app/
+
 #### To Sign Up / Login / Login with google
 
 ```
