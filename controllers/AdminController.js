@@ -1,5 +1,4 @@
 const express = require("express");
-const path = require("path");
 const { UserModel } = require("../models/UserModel");
 const { authorization } = require("../middleware/authorization");
 require("dotenv").config();

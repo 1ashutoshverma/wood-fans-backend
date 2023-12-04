@@ -31,6 +31,7 @@ productsController.get("/", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 productsController.get("/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -40,4 +41,8 @@ productsController.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+
+
 module.exports = { productsController };
